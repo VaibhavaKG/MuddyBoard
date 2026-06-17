@@ -1,7 +1,7 @@
 // modules/modes/memory.js
-import { audio } from '../audio.js';
-import { animations } from '../animations.js';
-import { photos } from '../photos.js';
+import { audio } from "../audio.js";
+import { animations } from "../animations.js";
+import { photos } from "../photos.js";
 
 export class MemoryMatch {
   constructor() {
@@ -13,7 +13,7 @@ export class MemoryMatch {
     this.matchesFound = 0;
     this.gridEl = null;
     this.isChecking = false;
-    
+
     this.gridSelector = null;
   }
 
@@ -25,42 +25,12 @@ export class MemoryMatch {
     this.matchesFound = 0;
     this.isChecking = false;
 
-    this.container.innerHTML = '';
-    this.container.className = 'sensory-world memory-world';
+    this.container.innerHTML = "";
+    this.container.className = "sensory-world memory-world";
 
-    // 1. Grid Size selector bar at bottom (large targets)
-    this.gridSelector = document.createElement('div');
-    this.gridSelector.className = 'memory-grid-bar';
-    this.gridSelector.style.zIndex = '8';
-
-    [4, 6].forEach(size => {
-      const btn = document.createElement('button');
-      btn.className = `grid-select-btn ${this.gridSize === size ? 'active' : ''}`;
-      btn.innerText = `${size === 4 ? 'Easy (2x2)' : 'Medium (3x2)'}`;
-      btn.addEventListener('pointerdown', (e) => {
-        e.stopPropagation();
-        this.selectGridSize(size, btn);
-      });
-      this.gridSelector.appendChild(btn);
-    });
-
-    this.container.appendChild(this.gridSelector);
+    this.gridSize = 4;
 
     // 2. Setup Board
-    this.startNewGame();
-  }
-
-  selectGridSize(size, btn) {
-    this.gridSize = size;
-    audio.playXylophone(600);
-
-    const buttons = this.gridSelector.querySelectorAll('.grid-select-btn');
-    buttons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    const rect = btn.getBoundingClientRect();
-    animations.playSparkleBurst(rect.left + rect.width / 2, rect.top);
-
     this.startNewGame();
   }
 
@@ -75,7 +45,7 @@ export class MemoryMatch {
     // Pick photos needed for pairs
     const pairsCount = this.gridSize / 2;
     const selectedPhotos = [];
-    
+
     for (let i = 0; i < pairsCount; i++) {
       selectedPhotos.push(photos.getNextPhoto());
     }
@@ -90,22 +60,22 @@ export class MemoryMatch {
     }
 
     // Create Grid container
-    this.gridEl = document.createElement('div');
-    this.gridEl.className = 'memory-grid';
-    
+    this.gridEl = document.createElement("div");
+    this.gridEl.className = "memory-grid";
+
     // Set responsive grid columns
     const cols = this.gridSize === 4 ? 2 : 3;
     this.gridEl.style.gridTemplateColumns = `repeat(${cols}, 140px)`;
-    
-    this.boardCenterWrapper = document.createElement('div');
-    this.boardCenterWrapper.className = 'memory-board-center';
+
+    this.boardCenterWrapper = document.createElement("div");
+    this.boardCenterWrapper.className = "memory-board-center";
     this.boardCenterWrapper.appendChild(this.gridEl);
     this.container.appendChild(this.boardCenterWrapper);
 
     // Render cards
     rawDeck.forEach((photoUrl, index) => {
-      const cardContainer = document.createElement('div');
-      cardContainer.className = 'memory-card-container';
+      const cardContainer = document.createElement("div");
+      cardContainer.className = "memory-card-container";
 
       cardContainer.innerHTML = `
         <div class="memory-card-inner">
@@ -122,13 +92,13 @@ export class MemoryMatch {
         el: cardContainer,
         photo: photoUrl,
         isFlipped: false,
-        isMatched: false
+        isMatched: false,
       };
 
       this.cards.push(cardData);
 
       // Event listener for card flips
-      cardContainer.addEventListener('pointerdown', (e) => {
+      cardContainer.addEventListener("pointerdown", (e) => {
         e.preventDefault();
         e.stopPropagation();
         this.flipCard(cardData);
@@ -140,13 +110,16 @@ export class MemoryMatch {
     if (this.isChecking || card.isFlipped || card.isMatched) return;
 
     card.isFlipped = true;
-    card.el.classList.add('flipped');
+    card.el.classList.add("flipped");
     audio.playPop();
 
     this.flippedCards.push(card);
 
     const rect = card.el.getBoundingClientRect();
-    animations.playMagicDustTrail(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    animations.playMagicDustTrail(
+      rect.left + rect.width / 2,
+      rect.top + rect.height / 2,
+    );
 
     if (this.flippedCards.length === 2) {
       this.isChecking = true;
@@ -162,20 +135,20 @@ export class MemoryMatch {
 
   checkMatch() {
     const [card1, card2] = this.flippedCards;
-    
+
     const rect1 = card1.el.getBoundingClientRect();
     const rect2 = card2.el.getBoundingClientRect();
-    const c1x = rect1.left + rect1.width/2;
-    const c1y = rect1.top + rect1.height/2;
-    const c2x = rect2.left + rect2.width/2;
-    const c2y = rect2.top + rect2.height/2;
+    const c1x = rect1.left + rect1.width / 2;
+    const c1y = rect1.top + rect1.height / 2;
+    const c2x = rect2.left + rect2.width / 2;
+    const c2y = rect2.top + rect2.height / 2;
 
     if (card1.photo === card2.photo) {
       // It's a MATCH!
       card1.isMatched = true;
       card2.isMatched = true;
-      card1.el.classList.add('matched');
-      card2.el.classList.add('matched');
+      card1.el.classList.add("matched");
+      card2.el.classList.add("matched");
 
       // Sparkles and Chime rewards
       audio.playChime();
@@ -192,14 +165,14 @@ export class MemoryMatch {
       // No match
       card1.isFlipped = false;
       card2.isFlipped = false;
-      card1.el.classList.remove('flipped');
-      card2.el.classList.remove('flipped');
+      card1.el.classList.remove("flipped");
+      card2.el.classList.remove("flipped");
 
-      card1.el.classList.add('shake');
-      card2.el.classList.add('shake');
+      card1.el.classList.add("shake");
+      card2.el.classList.add("shake");
       setTimeout(() => {
-        card1.el.classList.remove('shake');
-        card2.el.classList.remove('shake');
+        card1.el.classList.remove("shake");
+        card2.el.classList.remove("shake");
       }, 500);
 
       // Play minor buzzer error drum sound
@@ -213,11 +186,17 @@ export class MemoryMatch {
   completeGame() {
     // Reward full celebration
     audio.playCelebration();
-    
+
     setTimeout(() => {
       const rect = this.gridEl.getBoundingClientRect();
-      animations.playConfettiRain(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      animations.playConfettiRain(
+        rect.left + rect.width / 2,
+        rect.top + rect.height / 2,
+      );
     }, 400);
+
+    // Swap difficulty size continuously
+    this.gridSize = this.gridSize === 4 ? 6 : 4;
 
     // Auto reset deck in 3.5s
     setTimeout(() => {
@@ -234,11 +213,11 @@ export class MemoryMatch {
   cleanup() {
     if (this.gridEl) this.gridEl.remove();
     if (this.gridSelector) this.gridSelector.remove();
-    this.cards.forEach(c => c.el.remove());
+    this.cards.forEach((c) => c.el.remove());
     this.cards = [];
     if (this.container) {
-      this.container.innerHTML = '';
-      this.container.className = 'sensory-world';
+      this.container.innerHTML = "";
+      this.container.className = "sensory-world";
     }
   }
 }
