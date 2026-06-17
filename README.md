@@ -41,3 +41,6 @@ http://localhost:3000
 I originally built this for my niece, who had a habit of appearing next to my laptop whenever I was trying to get work done. What started as a simple distraction gradually grew into a collection of small games and activities centered around her photos and favorite interactions.
 
 A fun side project, a playground for experimentation, and something she genuinely enjoys using.
+
+https://vaibhavakg.github.io/MuddyBoard/
+
