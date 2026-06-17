@@ -1,0 +1,17 @@
+{
+  "name": "muddyboard",
+  "version": "1.0.0",
+  "description": "A premium personalized sensory playground for toddlers aged 1–4 years.",
+  "scripts": {
+    "dev": "npx -y serve . -l 3000"
+  },
+  "keywords": [
+    "toddler",
+    "sensory",
+    "playground",
+    "pwa",
+    "audio-synth"
+  ],
+  "author": "Antigravity Pair Programmer",
+  "license": "MIT"
+}

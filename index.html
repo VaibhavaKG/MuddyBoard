@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MuddyBoard 🌟 Toddler Sensory Playground</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="A premium, interactive sensory playground for toddlers aged 1–4. Works entirely offline, featuring colors, sounds, music, animations, and personalized photos.">
+  <meta name="theme-color" content="#ff75a0">
+  
+  <!-- PWA Support -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- Typography: Nunito from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Global Error Logger for file:// CORS debugging and runtime exceptions -->
+  <script>
+    window.addEventListener('error', function(e) {
+      const errDiv = document.getElementById('global-error-banner') || document.createElement('div');
+      errDiv.id = 'global-error-banner';
+      errDiv.style = 'position:fixed;top:10px;left:10px;right:10px;background:#ff4d4d;color:white;padding:15px;z-index:9999;border-radius:10px;font-family:monospace;font-size:13px;box-shadow:0 10px 25px rgba(0,0,0,0.35);line-height:1.4;pointer-events:auto;';
+      const file = e.filename ? e.filename.split('/').pop() : 'unknown';
+      errDiv.innerHTML = '<strong>App Error:</strong> ' + e.message + '<br><span style="font-size:11px;opacity:0.85;">File: ' + file + ' : ' + e.lineno + '</span>';
+      
+      if (window.location.protocol === 'file:') {
+        errDiv.innerHTML += '<br><br><span style="color:#ffd700;font-weight:bold;">⚠️ CORS Policy Blocked: Chrome/Edge/Firefox block ES Modules on the file:// protocol. Please open a terminal, run "npm run dev", and visit http://localhost:3000 instead!</span>';
+      }
+      document.body.appendChild(errDiv);
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+      const errDiv = document.getElementById('global-error-banner') || document.createElement('div');
+      errDiv.id = 'global-error-banner';
+      errDiv.style = 'position:fixed;top:10px;left:10px;right:10px;background:#ff9f43;color:white;padding:15px;z-index:9999;border-radius:10px;font-family:monospace;font-size:13px;box-shadow:0 10px 25px rgba(0,0,0,0.35);line-height:1.4;pointer-events:auto;';
+      errDiv.innerHTML = '<strong>Promise Rejection:</strong> ' + e.reason;
+      if (window.location.protocol === 'file:') {
+        errDiv.innerHTML += '<br><br><span style="color:#ffd700;font-weight:bold;">⚠️ CORS Policy Blocked: Chrome/Edge/Firefox block ES Modules on the file:// protocol. Please open a terminal, run "npm run dev", and visit http://localhost:3000 instead!</span>';
+      }
+      document.body.appendChild(errDiv);
+    });
+  </script>
+</head>
+<body class="theme-rainbow">
+
+  <!-- Fullscreen Main Container -->
+  <main id="app-viewport">
+    
+    <!-- Hidden Parent Trigger in top-left corner -->
+    <div id="parent-trigger" title="Hold 5 seconds for settings"></div>
+
+    <!-- Info Trigger Button in top-right corner -->
+    <button id="info-trigger" title="MuddyBoard Information">ℹ️</button>
+
+    <!-- Active Sensory Play World Container -->
+    <div id="sensory-container"></div>
+
+    <!-- Mascot Spawning Container -->
+    <div id="mascot-container"></div>
+
+    <!-- Bottom child-safe Navigation Bar (Emoji-only) -->
+    <nav id="mode-selector">
+      <button class="nav-btn active" data-mode="bubbles" title="Bubble Pop World" id="btn-mode-bubbles">🫧</button>
+      <button class="nav-btn" data-mode="animals" title="Animal World" id="btn-mode-animals">🐶</button>
+      <button class="nav-btn" data-mode="paint" title="Magic Paint" id="btn-mode-paint">🎨</button>
+      <button class="nav-btn" data-mode="music" title="Music Playground" id="btn-mode-music">🎹</button>
+      <button class="nav-btn" data-mode="fireworks" title="Fireworks World" id="btn-mode-fireworks">🎆</button>
+      <button class="nav-btn" data-mode="ocean" title="Ocean World" id="btn-mode-ocean">🐠</button>
+      <button class="nav-btn" data-mode="space" title="Space World" id="btn-mode-space">🚀</button>
+      <button class="nav-btn" data-mode="vehicles" title="Vehicle World" id="btn-mode-vehicles">🚒</button>
+      <button class="nav-btn" data-mode="puzzle" title="Photo Puzzle" id="btn-mode-puzzle">🧩</button>
+      <button class="nav-btn" data-mode="memory" title="Memory Match" id="btn-mode-memory">🃏</button>
+      <button class="nav-btn" data-mode="slideshow" title="Slideshow screensaver" id="btn-mode-slideshow">🖼️</button>
+    </nav>
+
+  </main>
+
+  <!-- Initial Tap to Play Overlay (Unlocks Web Audio API context) -->
+  <div id="welcome-overlay">
+    <div class="welcome-card">
+      <div class="welcome-emoji-bounce">🌟🧸🫧</div>
+      <h1>MuddyBoard</h1>
+      <p>Sensory Playground</p>
+      <button id="welcome-play-btn">Tap to Play! ▶️</button>
+    </div>
+  </div>
+
+  <!-- Info Overlay Modal -->
+  <div id="info-overlay" class="info-modal-overlay" style="display: none;">
+    <div class="info-modal-card">
+      <div class="info-modal-header">
+        <h2>ℹ️ MuddyBoard Info & Guide</h2>
+        <button id="info-close-btn" class="info-close-x-btn">&times;</button>
+      </div>
+      <div class="info-modal-body">
+        <section class="info-section">
+          <h3>🌟 About MuddyBoard</h3>
+          <p>MuddyBoard is a premium, interactive sensory playground designed specifically for toddlers aged 1–4 years. It is completely ad-free, runs offline, requires no backend login, and provides a safe and magical sensory environment for exploration.</p>
+        </section>
+        
+        <section class="info-section">
+          <h3>⌨️ Keyboard Key Magic</h3>
+          <p>Your toddler can play using almost any key on the keyboard! Pressing alphabet keys, number keys, space, enter, and punctuation triggers tailored visual animations and synthesizer sounds for the active play world:</p>
+          <ul>
+            <li><strong>🫧 Bubble Pop:</strong> Spawns letters/digits inside rising bubbles that can be popped!</li>
+            <li><strong>🐶 Animal World:</strong> Pressing <code>1-9</code> or animal letters (like <code>D</code> for Dog, <code>C</code> for Cat, <code>M</code> for Monkey) triggers their bouncy animations and sounds!</li>
+            <li><strong>🎨 Magic Paint:</strong> Stamps giant glowing neon letters/digits onto the canvas!</li>
+            <li><strong>🎹 Music World:</strong> Play real pentatonic scale notes using keys <code>1-8</code>, <code>A-K</code>, or <code>Z-,</code>. Cycle instruments with <code>I</code> or Space!</li>
+            <li><strong>🎆 Fireworks:</strong> Launches rockets that explode into colorful text showers of the pressed key!</li>
+            <li><strong>🐠 Ocean World:</strong> Spawns key bubbles and makes fish dart away!</li>
+            <li><strong>🚀 Space World:</strong> Shoots glowing key comets across the sky and activates thrusters!</li>
+            <li><strong>🚒 Vehicle World:</strong> Drives themed vehicles carrying cargo blocks with the pressed key!</li>
+          </ul>
+          <p class="info-tip"><em>Note: Standard system keys (Esc, Tab, Ctrl, Shift, Alt, Cmd/Win, and Function keys F1-F12) are bypassed to keep the browser functioning normally.</em></p>
+        </section>
+
+        <section class="info-section">
+          <h3>📸 Customizing Photos</h3>
+          <p>You can add your own family photos to float in bubbles, balloons, and card match games:</p>
+          <ol>
+            <li>Create or open the <code>photos/</code> folder in the project directory.</li>
+            <li>Paste your toddler's favorite images (JPG, PNG, WEBP, GIF).</li>
+            <li>Right-click <strong><code>generate-photos.ps1</code></strong> and select <strong>Run with PowerShell</strong> to register your photos in the game.</li>
+          </ol>
+        </section>
+
+        <section class="info-section">
+          <h3>🔒 Parent Settings Panel</h3>
+          <p>To access volume levels, theme presets, playlist controls, and the child lock:</p>
+          <p><strong>Long-press</strong> the top-left corner of the screen for <strong>5 seconds</strong>, then solve the math security quiz to unlock.</p>
+        </section>
+
+        <section class="info-section">
+          <h3>📱 Play Offline (PWA)</h3>
+          <p>MuddyBoard is a Progressive Web App. You can install it on your iPad, tablet, or phone (via "Add to Home Screen" or "Install App") and play fully offline anywhere without internet.</p>
+        </section>
+      </div>
+      <div class="info-modal-footer">
+        <button id="info-ok-btn" class="info-ok-btn">Let's Play! 🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Orchestrator script -->
+  <script type="module" src="script.js"></script>
+</body>
+</html>
